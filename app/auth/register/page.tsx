@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/components/contexts/LanguageContext';
-import { AuthService } from '@/lib/auth';
+import { AuthService, User } from '@/lib/auth';
 import { Eye, EyeOff, Heart, Building } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Link from 'next/link';
@@ -16,12 +16,18 @@ import Link from 'next/link';
 export default function RegisterPage() {
   const { t } = useLanguage();
   const router = useRouter();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    role: 'donor' | 'recipient' | '';
+  }>({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    role: '' as 'donor' | 'recipient' | '',
+    role: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -46,7 +52,13 @@ export default function RegisterPage() {
     }
 
     try {
-      const user = await AuthService.register(formData);
+      const { confirmPassword, ...registrationData } = formData;
+      if (registrationData.role === '') {
+        setError('Please select a role.');
+        setLoading(false);
+        return;
+      }
+      const user = await AuthService.register(registrationData as Partial<User>);
       router.push('/profile/setup');
     } catch (err) {
       setError('Registration failed. Please try again.');
@@ -101,7 +113,7 @@ export default function RegisterPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="role">{t('auth.selectRole')}</Label>
-                <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value as 'donor' | 'recipient' })}>
+                <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value as 'donor' | 'recipient' | '' })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
