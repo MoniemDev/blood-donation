@@ -195,6 +195,8 @@ export const translations = {
 
 export type Language = 'en' | 'ar';
 
-export function t(key: string, language: Language): string {
+export type TranslationKey = keyof typeof translations.en & keyof typeof translations.ar;
+
+export function t(key: TranslationKey, language: Language): string {
   return translations[language][key] || key;
 }

@@ -1,12 +1,12 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Language, t } from '@/lib/i18n';
+import { Language, t, TranslationKey } from '@/lib/i18n';
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (key: TranslationKey) => string;
   isRTL: boolean;
 }
 
@@ -29,7 +29,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.lang = lang;
   };
 
-  const translate = (key: string) => t(key, language);
+  const translate = (key: TranslationKey) => t(key, language);
 
   const isRTL = language === 'ar';
 
